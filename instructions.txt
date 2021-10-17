@@ -1,0 +1,9 @@
+gradlew.bat build
+gradlew.bat bootRun
+
+git add .
+git commit -m "..."
+git push heroku master
+heroku open
+
+heroku addons:open papertrail

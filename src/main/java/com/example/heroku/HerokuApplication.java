@@ -24,6 +24,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.sql.DataSource;
@@ -49,8 +50,22 @@ public class HerokuApplication {
   }
 
   @RequestMapping("/")
-  String index() {
+  String index(Map<String, Object> model) {
+    model.put("stock", new Stock());
     return "index";
+  }
+
+  @RequestMapping("/hello")
+  String hello(Map<String, Object> model) {
+    model.put("science", "E=mc^2: 12 GeV = ");
+    return "hello";
+  }
+
+  @RequestMapping("/add-ticker")
+  String saveTicker(@ModelAttribute Stock stock) {
+    AlphaVantageWebClient client = new AlphaVantageWebClient();
+    client.tickerInformation();
+    return "result";
   }
 
   @RequestMapping("/db")

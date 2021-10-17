@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'result')}">
+
+<body>
+    <h2>Result</h2>
+    <div class="my-3">
+        <p><strong>Ticker:</strong> <span th:text="${stock.ticker}"></span></p>
+        <p><strong>Price:</strong> <span th:text="${stock.price}"></span></p>
+        <p><strong>Amount:</strong> <span th:text="${stock.amount}"></span></p>
+        <p><strong>Date:</strong> <span th:text="${stock.date}"></span></p>
+    </div>
+</body>
