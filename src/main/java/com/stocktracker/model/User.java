@@ -29,5 +29,5 @@ public class User {
     @Email
     @NotEmpty(message = "Email is required")
     private String email;
-    private Instant created_at;
+    private Instant createdAt;
 }
