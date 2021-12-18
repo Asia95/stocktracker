@@ -1,4 +1,4 @@
-package com.example.heroku;
+package com.stocktracker;
 
 import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;

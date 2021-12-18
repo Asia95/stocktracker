@@ -37,6 +37,7 @@ dependencies {
 	compile 'org.webjars:bootstrap:5.1.0'
 	compile 'org.springframework.boot:spring-boot-starter-webflux'
 	compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+	compile 'org.springframework.boot:spring-boot-starter-mail'
 	implementation group: 'com.auth0', name: 'java-jwt', version: '3.18.2'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.security:spring-security-test'
