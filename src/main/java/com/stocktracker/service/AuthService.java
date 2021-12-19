@@ -71,9 +71,9 @@ public class AuthService {
 
     @Transactional
     private void fetchUserAndEnable(VerificationToken verificationToken) {
-        String username = verificationToken.getUser().getUsername();
-        User user = userRepository.findByUsername(username).orElseThrow(() ->
-                new StockTrackerException("User Not Found : " + username));
+        String userEmail = verificationToken.getUser().getEmail();
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() ->
+                new StockTrackerException("User Not Found : " + userEmail));
         user.setEnabled(true);
         userRepository.save(user);
     }

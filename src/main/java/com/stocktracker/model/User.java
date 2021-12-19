@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -28,6 +29,7 @@ public class User {
     private String password;
     @Email
     @NotEmpty(message = "Email is required")
+    @Column(unique=true)
     private String email;
     private Instant createdAt;
     private boolean enabled;
