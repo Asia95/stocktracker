@@ -1,5 +1,7 @@
 package com.stocktracker.controller;
 
+import com.stocktracker.dto.AuthenticationResponse;
+import com.stocktracker.dto.LoginRequest;
 import com.stocktracker.dto.RegisterRequest;
 import com.stocktracker.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -23,6 +25,11 @@ public class AuthController {
         authService.signup(registerRequest);
         log.info("signup " + registerRequest.toString());
         return new ResponseEntity(OK);
+    }
+
+    @PostMapping("/login")
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 
     @GetMapping("accountVerification/{token}")
