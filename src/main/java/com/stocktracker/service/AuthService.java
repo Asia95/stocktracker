@@ -1,25 +1,21 @@
 package com.stocktracker.service;
 
-import com.stocktracker.dto.AuthenticationResponse;
-import com.stocktracker.dto.LoginRequest;
 import com.stocktracker.dto.RegisterRequest;
 import com.stocktracker.exception.StockTrackerException;
 import com.stocktracker.model.NotificationEmail;
+import com.stocktracker.model.Role;
 import com.stocktracker.model.User;
 import com.stocktracker.model.VerificationToken;
+import com.stocktracker.repository.RoleRepository;
 import com.stocktracker.repository.UserRepository;
 import com.stocktracker.repository.VerificationTokenRepository;
-import com.stocktracker.security.JwtProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,12 +28,13 @@ import static java.time.Instant.now;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailContentBuilder mailContentBuilder;
     private final MailService mailService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtProvider jwtProvider;
+//    private final AuthenticationManager authenticationManager;
+//    private final JwtProvider jwtProvider;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
@@ -47,6 +44,10 @@ public class AuthService {
         user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setCreatedAt(now());
         user.setEnabled(false);
+
+        Role role = roleRepository.findByName("ROLE_USER");
+        user.setRoles(new ArrayList<Role>() {{ add(role); }});
+
         log.info("registering...");
         userRepository.save(user);
         log.info("saved!!!!!");
@@ -72,13 +73,13 @@ public class AuthService {
         return passwordEncoder.encode(password);
     }
 
-    public AuthenticationResponse login(LoginRequest loginRequest) {
-        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserEmail(),
-                loginRequest.getPassword()));
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
-        String authenticationToken = jwtProvider.generateToken(authenticate);
-        return new AuthenticationResponse(authenticationToken, loginRequest.getUserEmail());
-    }
+//    public AuthenticationResponse login(LoginRequest loginRequest) {
+//        Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUserEmail(),
+//                loginRequest.getPassword()));
+//        SecurityContextHolder.getContext().setAuthentication(authenticate);
+//        String authenticationToken = jwtProvider.generateToken(authenticate);
+//        return new AuthenticationResponse(authenticationToken, loginRequest.getUserEmail());
+//    }
 
     public void verifyAccount(String token) {
         Optional<VerificationToken> verificationTokenOptional = verificationTokenRepository.findByToken(token);

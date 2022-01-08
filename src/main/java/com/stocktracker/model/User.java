@@ -4,24 +4,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 
-import static javax.persistence.GenerationType.SEQUENCE;
+import static javax.persistence.FetchType.EAGER;
+import static javax.persistence.GenerationType.AUTO;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 public class User {
-    @Id
-    @GeneratedValue(strategy = SEQUENCE)
+    @Id @GeneratedValue(strategy = AUTO)
     private Long userId;
     @NotBlank(message = "Username is required")
     private String username;
@@ -33,4 +32,6 @@ public class User {
     private String email;
     private Instant createdAt;
     private boolean enabled;
+    @ManyToMany(fetch = EAGER)
+    private Collection<Role> roles = new ArrayList<>();
 }
