@@ -16,9 +16,15 @@
 
 package com.stocktracker;
 
+import com.stocktracker.model.Role;
+import com.stocktracker.service.UserService;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
 @EnableAsync
@@ -26,6 +32,21 @@ public class StockTrackerApplication {
 
   public static void main(String[] args) throws Exception {
     SpringApplication.run(StockTrackerApplication.class, args);
+  }
+
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  CommandLineRunner run(UserService userService) {
+    return args -> {
+      userService.saveRole(new Role(null, "ROLE_USER"));
+      userService.saveRole(new Role(null, "ROLE_MANAGER"));
+      userService.saveRole(new Role(null, "ROLE_ADMIN"));
+      userService.saveRole(new Role(null, "ROLE_SUPER_ADMIN"));
+    };
   }
 
 //  @RequestMapping("/")
