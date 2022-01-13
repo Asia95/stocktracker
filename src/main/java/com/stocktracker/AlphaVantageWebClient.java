@@ -4,17 +4,19 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static com.stocktracker.util.Constants.ALPHA_VANTAGE_URL;
+
 @NoArgsConstructor
 public class AlphaVantageWebClient {
 
     public String tickerInformation() {
-        String url = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo";
+        String dailyUrl = ALPHA_VANTAGE_URL + "/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo";
 
-        WebClient client = WebClient.create("https://www.alphavantage.co");
+        WebClient client = WebClient.create(ALPHA_VANTAGE_URL);
         //WebClient.UriSpec<WebClient.ResponseSpec> uriSpec = client.post();
 
         ResponseEntity<String> response = client.get()
-                .uri("/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo")
+                .uri(dailyUrl)
                 .retrieve()
                 .toEntity(String.class)
                 .block();
