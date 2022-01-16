@@ -64,6 +64,11 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    public Role getRole(String role) {
+        return roleRepository.findByName(role);
+    }
+
+    @Override
     public void addRoleToUser(String email, String roleName) {
         log.info("Adding role {} to user {}", roleName, email);
         User user = getUser(email);

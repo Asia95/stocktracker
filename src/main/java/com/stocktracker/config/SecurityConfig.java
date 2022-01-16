@@ -61,13 +61,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .authenticated();
 
 
-        httpSecurity.authorizeRequests().antMatchers("/auth/login/**",
-                "/auth/**", "/api/token/refresh/**", "/api/users/**").permitAll();
-        httpSecurity.authorizeRequests().antMatchers(GET, "/api/user/**")
-                .hasAnyAuthority("ROLE_USER");
-        httpSecurity.authorizeRequests().antMatchers(POST, "/api/user/save/**")
-                .hasAnyAuthority("ROLE_ADMIN");
-        httpSecurity.authorizeRequests().anyRequest().authenticated();
+        httpSecurity
+                .authorizeRequests().antMatchers("/auth/**",
+                "/api/token/refresh/**", "/api/users/**").permitAll().and()
+        .formLogin()
+                .loginPage("/auth/login")
+                .permitAll().and()
+        .authorizeRequests().antMatchers(GET, "/api/user/**")
+                .hasAnyAuthority("ROLE_USER").and()
+        .authorizeRequests().antMatchers(POST, "/api/user/save/**")
+                .hasAnyAuthority("ROLE_ADMIN").and()
+        .authorizeRequests().anyRequest().authenticated().and().httpBasic();
         httpSecurity.addFilter(customAuthenticationFilter);
         httpSecurity.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class); // a filter for a specific class
 
@@ -82,6 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override @Autowired
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication().withUser("test@test.com").password("pass").roles("USER");
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 
