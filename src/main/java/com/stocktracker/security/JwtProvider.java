@@ -1,23 +1,25 @@
-//package com.stocktracker.security;
-//
-//import com.stocktracker.exception.StockTrackerException;
+package com.stocktracker.security;
+
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.stream.Collectors;
+
 //import io.jsonwebtoken.Claims;
 //import io.jsonwebtoken.Jwts;
-//import org.springframework.security.core.Authentication;
-//import org.springframework.security.core.userdetails.User;
-//import org.springframework.stereotype.Service;
-//
-//import javax.annotation.PostConstruct;
-//import java.io.IOException;
-//import java.io.InputStream;
-//import java.security.*;
-//import java.security.cert.CertificateException;
-//
+
 //import static io.jsonwebtoken.Jwts.parser;
-//
-//@Service
-//public class JwtProvider {
-//
+
+@Service
+@Slf4j
+public class JwtProvider {
+
 //    private KeyStore keyStore;
 //
 //    @PostConstruct
@@ -31,7 +33,7 @@
 //        }
 //
 //    }
-//
+
 //    private PrivateKey getPrivateKey() {
 //        try {
 //            return (PrivateKey) keyStore.getKey("stocktracker", "password".toCharArray());
@@ -39,20 +41,40 @@
 //            throw new StockTrackerException("Exception occured while retrieving public key from keystore");
 //        }
 //    }
-//
-//    public String generateToken(Authentication authentication) {
-//        org.springframework.security.core.userdetails.User principal = (User) authentication.getPrincipal();
-//        return Jwts.builder()
-//                .setSubject(principal.getUsername())
-//                .signWith(getPrivateKey())
-//                .compact();
-//    }
-//
+
+    public String generateJwtToken(Authentication authentication) {
+        User user = (User)authentication.getPrincipal();
+        log.info("username for token: {}", user.getUsername());
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        String access_token = JWT.create()
+                .withSubject(user.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 525600 * 60 * 1000))
+                //.withIssuer(request.getRequestURL().toString())
+                .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
+                .sign(algorithm);
+        return access_token;
+    }
+
+    public String generateTokenFromUser(com.stocktracker.model.User u) {
+        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        String access_token = JWT.create()
+                .withSubject(u.getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + 525600 * 60 * 1000))
+                //.withIssuer(request.getRequestURL().toString())
+                .withClaim("roles", u.getRoles().stream().collect(Collectors.toList()))
+                .sign(algorithm);
+        return access_token;
+    }
+
+    public Long getExpiryDuration() {
+        return System.currentTimeMillis() + 525600 * 60 * 1000;
+    }
+
 //    public boolean validateToken(String jwt) {
 //        parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
 //        return true;
 //    }
-//
+
 //    private PublicKey getPublicKey() {
 //        try {
 //            return keyStore.getCertificate("stocktracker").getPublicKey();
@@ -60,7 +82,7 @@
 //            throw new StockTrackerException("Exception occured while retrieving public key from keystore");
 //        }
 //    }
-//
+
 //    public String getUsernameFromJWT(String token) {
 //        Claims claims = parser()
 //                .setSigningKey(getPublicKey())
@@ -69,4 +91,4 @@
 //
 //        return claims.getSubject();
 //    }
-//}
+}

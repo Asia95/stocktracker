@@ -40,7 +40,7 @@ public class AuthService {
     public void signup(RegisterRequest registerRequest) {
         User user = new User();
         user.setUsername(registerRequest.getUsername());
-        user.setEmail(registerRequest.getEmail());
+        user.setName(registerRequest.getName());
         user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setCreatedAt(now());
         user.setEnabled(false);
@@ -57,7 +57,7 @@ public class AuthService {
                 " please click on the below url to activate your account : " +
                 ACTIVATION_EMAIL + "/" + token);
 
-        mailService.sendMail(new NotificationEmail("Activate your account", user.getEmail(), message));
+        mailService.sendMail(new NotificationEmail("Activate your account", user.getUsername(), message));
     }
 
     private String generateVerificationToken(User user) {
@@ -89,10 +89,10 @@ public class AuthService {
 
     @Transactional
     private void fetchUserAndEnable(VerificationToken verificationToken) {
-        String userEmail = verificationToken.getUser().getEmail();
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() ->
+        String userEmail = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(userEmail).orElseThrow(() ->
                 new StockTrackerException("User Not Found : " + userEmail));
-        user.setEnabled(true);
+        user.enable();
         userRepository.save(user);
     }
 }

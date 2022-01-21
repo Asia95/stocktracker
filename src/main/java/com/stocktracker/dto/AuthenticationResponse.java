@@ -7,5 +7,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuthenticationResponse {
     private String authenticationToken;
-    private String userEmail;
+    private String refreshToken;
+    private Long expiryDuration;
+    //private String userEmail;
 }

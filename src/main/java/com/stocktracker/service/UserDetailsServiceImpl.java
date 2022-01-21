@@ -1,5 +1,7 @@
 package com.stocktracker.service;
 
+import com.stocktracker.exception.StockTrackerException;
+import com.stocktracker.model.RefreshToken;
 import com.stocktracker.model.Role;
 import com.stocktracker.model.User;
 import com.stocktracker.repository.RoleRepository;
@@ -32,11 +34,11 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) {
+        Optional<User> userOptional = userRepository.findByUsername(username);
         User user = userOptional
                 .orElseThrow(() -> new UsernameNotFoundException("No user " +
-                        "Found with email : " + email));
+                        "Found with email : " + username));
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> {
@@ -52,7 +54,7 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User saveUser(User user) {
-        log.info("Saving new user {} to the database", user.getEmail());
+        log.info("Saving new user {} to the database", user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -69,20 +71,20 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public void addRoleToUser(String email, String roleName) {
-        log.info("Adding role {} to user {}", roleName, email);
-        User user = getUser(email);
+    public void addRoleToUser(String username, String roleName) {
+        log.info("Adding role {} to user {}", roleName, username);
+        User user = getUser(username);
         Role role = roleRepository.findByName(roleName);
         user.getRoles().add(role);
     }
 
     @Override
-    public User getUser(String email) {
-        log.info("Fetching user {}", email);
-        Optional<User> userOptional = userRepository.findByEmail(email);
+    public User getUser(String username) {
+        log.info("Fetching user {}", username);
+        Optional<User> userOptional = userRepository.findByUsername(username);
         User user = userOptional
                 .orElseThrow(() -> new UsernameNotFoundException("No user " +
-                        "Found with email : " + email));
+                        "Found with email : " + username));
         return user;
     }
 
@@ -90,5 +92,13 @@ public class UserDetailsServiceImpl implements UserService, UserDetailsService {
     public List<User> getUsers() {
         log.info("Fetching all users");
         return userRepository.findAll();
+    }
+
+    public void verifyRefreshAvailability(RefreshToken refreshToken) {
+        User user = userRepository.findByUsername(refreshToken.getUser().getUsername())
+                .orElseThrow(() -> new StockTrackerException("No user found for the matching refresh token. Please login again."));
+        if (!user.getRefreshActive()) {
+            throw new StockTrackerException("Refresh blocked for the user");
+        }
     }
 }

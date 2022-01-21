@@ -5,8 +5,14 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.stocktracker.dto.AuthenticationResponse;
+import com.stocktracker.dto.TokenRefreshRequest;
+import com.stocktracker.exception.StockTrackerException;
+import com.stocktracker.model.RefreshToken;
 import com.stocktracker.model.Role;
 import com.stocktracker.model.User;
+import com.stocktracker.security.JwtProvider;
+import com.stocktracker.service.RefreshTokenService;
 import com.stocktracker.service.UserDetailsServiceImpl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +25,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -37,6 +41,8 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 @Slf4j
 public class UserController {
     private final UserDetailsServiceImpl userService;
+    private final RefreshTokenService refreshTokenService;
+    private final JwtProvider jwtProvider;
 
 //    @PostMapping("/signup")
 //    public ResponseEntity signup(@RequestBody RegisterRequest registerRequest) {
@@ -51,26 +57,43 @@ public class UserController {
 //    }
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>>getUsers() {
+    public ResponseEntity<List<User>> getUsers() {
         return ResponseEntity.ok().body(userService.getUsers());
     }
 
     @PostMapping("/user/save")
-    public ResponseEntity<User>saveUser(@RequestBody User user) {
+    public ResponseEntity<User> saveUser(@RequestBody User user) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/user/save").toUriString());
         return ResponseEntity.created(uri).body(userService.saveUser(user));
     }
 
     @PostMapping("/role/save")
-    public ResponseEntity<Role>saveRole(@RequestBody Role role) {
+    public ResponseEntity<Role> saveRole(@RequestBody Role role) {
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/role/save").toUriString());
         return ResponseEntity.created(uri).body(userService.saveRole(role));
     }
 
     @PostMapping("/role/addtouser")
-    public ResponseEntity<?>addRoleToUser(@RequestBody RoleToUserForm form) {
+    public ResponseEntity<?> addRoleToUser(@RequestBody RoleToUserForm form) {
         userService.addRoleToUser(form.getEmail(), form.getRoleName());
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/token/refresh")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody TokenRefreshRequest tokenRefreshRequest) {
+        String requestRefreshToken = tokenRefreshRequest.getRefreshToken();
+
+        Optional<String> token = Optional.of(refreshTokenService.findByToken(requestRefreshToken)
+                .map(refreshToken -> {
+                    refreshTokenService.verifyExpiration(refreshToken);
+                    userService.verifyRefreshAvailability(refreshToken);
+                    refreshTokenService.increaseCount(refreshToken);
+                    return refreshToken;
+                })
+                .map(RefreshToken::getUser)
+                .map(u -> jwtProvider.generateTokenFromUser(u))
+                .orElseThrow(() -> new StockTrackerException("Missing refresh token in database. Please login again")));
+        return ResponseEntity.ok().body(new AuthenticationResponse(token.get(), tokenRefreshRequest.getRefreshToken(), jwtProvider.getExpiryDuration()));
     }
 
     @GetMapping("/token/refresh")
@@ -109,7 +132,7 @@ public class UserController {
     }
 
     @GetMapping("/user/test")
-    public ResponseEntity<String>test() {
+    public ResponseEntity<String> test() {
         return ResponseEntity.ok().body("access successful");
     }
 }

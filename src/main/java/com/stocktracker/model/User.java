@@ -22,16 +22,26 @@ import static javax.persistence.GenerationType.AUTO;
 public class User {
     @Id @GeneratedValue(strategy = AUTO)
     private Long userId;
-    @NotBlank(message = "Username is required")
+    @Email
+    @NotBlank(message = "Email is required")
+    @Column(unique=true)
     private String username;
     @NotBlank(message = "Password is required")
     private String password;
-    @Email
-    @NotEmpty(message = "Email is required")
-    @Column(unique=true)
-    private String email;
+    @NotEmpty(message = "Name is required")
+    private String name;
     private Instant createdAt;
-    private boolean enabled;
+    private Boolean enabled;
+    private Boolean refreshActive;
+
     @ManyToMany(fetch = EAGER)
     private Collection<Role> roles = new ArrayList<>();
+
+    public void enable() {
+        this.enabled = true;
+    }
+
+    public void disable() {
+        this.enabled = false;
+    }
 }
