@@ -29,7 +29,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    //private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public CustomAuthorizationFilter customAuthorizationFilter() {
+        return new CustomAuthorizationFilter();
+    }
 
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
@@ -73,7 +77,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .hasAnyAuthority("ROLE_ADMIN").and()
         .authorizeRequests().anyRequest().authenticated().and().httpBasic();
         httpSecurity.addFilter(customAuthenticationFilter);
-        httpSecurity.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class); // a filter for a specific class
+        httpSecurity.addFilterBefore(customAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class); // a filter for a specific class
 
         //httpSecurity.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // a filter for a specific class
     }

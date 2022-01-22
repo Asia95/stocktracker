@@ -1,6 +1,5 @@
 package com.stocktracker.security;
 
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stocktracker.model.RefreshToken;
 import com.stocktracker.repository.UserRepository;
@@ -67,7 +66,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         com.stocktracker.model.User userModel = userRepository.findByUsername(user.getUsername())
                 .orElseThrow(() -> new RuntimeException("Fail! -> Cause: User not found."));
 
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+//        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
 //        String access_token = JWT.create()
 //                .withSubject(user.getUsername())
 //                .withExpiresAt(new Date(System.currentTimeMillis() + 525600 * 60 * 1000))
