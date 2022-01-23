@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,12 +21,12 @@ public class User {
     @Id @GeneratedValue(strategy = AUTO)
     private Long userId;
     @Email
-    @NotBlank(message = "Email is required")
+    //@NotBlank(message = "Email is required")
     @Column(unique=true)
     private String username;
-    @NotBlank(message = "Password is required")
+    //@NotBlank(message = "Password is required")
     private String password;
-    @NotEmpty(message = "Name is required")
+    //@NotEmpty(message = "Name is required")
     private String name;
     private Instant createdAt;
     private Boolean enabled;

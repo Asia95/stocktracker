@@ -1,14 +1,15 @@
 package com.stocktracker.controller;
 
-import com.stocktracker.dto.RegisterRequest;
+import com.stocktracker.dto.UserPostDto;
+import com.stocktracker.dto.mappers.MapStructMapper;
+import com.stocktracker.model.User;
 import com.stocktracker.service.AuthService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import static org.springframework.http.HttpStatus.IM_USED;
-import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -17,17 +18,20 @@ import static org.springframework.http.HttpStatus.OK;
 public class AuthController {
 
     private final AuthService authService;
+    private MapStructMapper mapstructMapper;
 
     @PostMapping("/signup")
-    public ResponseEntity signup(@RequestBody RegisterRequest registerRequest) {
-        log.info("signup " + registerRequest.toString());
+    public ResponseEntity signup(@RequestBody UserPostDto userPostDto) {
+        log.info("signup " + userPostDto.toString());
         try {
-            authService.signup(registerRequest);
-            log.info("signup " + registerRequest.toString());
+            User user = mapstructMapper.userPostDtoToUser(userPostDto);
+            log.info("User: " + mapstructMapper);
+            authService.signup(mapstructMapper.userPostDtoToUser(userPostDto));
+            log.info("signup " + userPostDto.toString());
         } catch (Exception e) {
             return new ResponseEntity<>("Email already registered", IM_USED);
         }
-        return new ResponseEntity(OK);
+        return new ResponseEntity(CREATED);
     }
 
 //    @PostMapping("/login")

@@ -41,8 +41,6 @@ dependencies {
 
 	compile 'org.junit.jupiter:junit-jupiter:5.8.2'
 	implementation 'com.auth0:java-jwt:3.18.2'
-	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 
 	implementation 'net.jodah:expiringmap:0.5.10'
 
@@ -56,6 +54,9 @@ dependencies {
 
 	testCompileOnly 'org.projectlombok:lombok:1.18.20'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+	implementation 'org.mapstruct:mapstruct:1.4.2.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
 }
 
 test {

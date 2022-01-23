@@ -1,6 +1,5 @@
 package com.stocktracker.service;
 
-import com.stocktracker.dto.RegisterRequest;
 import com.stocktracker.exception.StockTrackerException;
 import com.stocktracker.model.NotificationEmail;
 import com.stocktracker.model.Role;
@@ -33,15 +32,10 @@ public class AuthService {
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailContentBuilder mailContentBuilder;
     private final MailService mailService;
-//    private final AuthenticationManager authenticationManager;
-//    private final JwtProvider jwtProvider;
 
     @Transactional
-    public void signup(RegisterRequest registerRequest) {
-        User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setName(registerRequest.getName());
-        user.setPassword(encodePassword(registerRequest.getPassword()));
+    public void signup(User user) {
+        user.setPassword(encodePassword(user.getPassword()));
         user.setCreatedAt(now());
         user.setEnabled(false);
 
@@ -56,7 +50,7 @@ public class AuthService {
         String message = mailContentBuilder.build("Thank you for signing up to Stock Tracker," +
                 " please click on the below url to activate your account : " +
                 ACTIVATION_EMAIL + "/" + token);
-
+        log.info(String.format("Sending email to: [%s]", user.getUsername()));
         mailService.sendMail(new NotificationEmail("Activate your account", user.getUsername(), message));
     }
 
